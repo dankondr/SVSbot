@@ -49,6 +49,9 @@ def message_handler(message):
         bot.send_message(chat_id, translit(message_text, 'ru', reversed=True))
         sent_message_history[chat_id] = message_text
 
+    if prev_message != message_text:
+        sent_message_history[chat_id] = None
+
     message_history[chat_id] = message_text
 
 
@@ -70,6 +73,10 @@ def message_handler(message):
     if prev_message == sticker_info and prev_sent_message != sticker_info:
         bot.send_sticker(chat_id, message_sticker.file_id)
         sent_message_history[chat_id] = sticker_info
+        print('SENT MESSAGE')
+
+    if prev_message != sticker_info:
+        sent_message_history[chat_id] = None
 
     message_history[chat_id] = sticker_info
 
