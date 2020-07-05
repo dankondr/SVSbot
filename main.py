@@ -40,24 +40,36 @@ sent_message_history = {}
 @bot.message_handler(content_types=['text'])
 def message_handler(message):
     chat_id = message.chat.id
+    sender = message.from_user.id
     message_text = message.text
     prev_message = message_history.get(chat_id, None)
     prev_sent_message = sent_message_history.get(chat_id, None)
-    print(chat_id, message_text)
 
-    if prev_message == message_text and prev_sent_message != message_text:
+    message_info = {
+        'sender': sender,
+        'value': message_text
+    }
+    print(chat_id, message_info)
+
+    if prev_message is None:
+        message_history[chat_id] = message_info
+        return
+
+    if prev_message['value'] == message_info['value'] and prev_message['sender'] != message_info[
+        'sender'] and prev_sent_message != message_text:
         bot.send_message(chat_id, translit(message_text, 'ru', reversed=True))
         sent_message_history[chat_id] = message_text
 
-    if prev_message != message_text:
+    if prev_message['value'] != message_info['value']:
         sent_message_history[chat_id] = None
 
-    message_history[chat_id] = message_text
+    message_history[chat_id] = message_info
 
 
 @bot.message_handler(content_types=['sticker'])
 def message_handler(message):
     chat_id = message.chat.id
+    sender = message.from_user.id
     message_sticker = message.sticker
     sticker_info = {
         'width': message_sticker.width,
@@ -68,17 +80,27 @@ def message_handler(message):
     }
     prev_message = message_history.get(chat_id, None)
     prev_sent_message = sent_message_history.get(chat_id, None)
-    print(chat_id, message_sticker)
 
-    if prev_message == sticker_info and prev_sent_message != sticker_info:
+    message_info = {
+        'sender': sender,
+        'value': sticker_info
+    }
+    print(chat_id, message_info)
+
+    if prev_message is None:
+        message_history[chat_id] = message_info
+        return
+
+    if prev_message['value'] == message_info['value'] and prev_message['sender'] != message_info[
+        'sender'] and prev_sent_message != sticker_info:
         bot.send_sticker(chat_id, message_sticker.file_id)
         sent_message_history[chat_id] = sticker_info
         print('SENT MESSAGE')
 
-    if prev_message != sticker_info:
+    if prev_message['value'] != message_info['value']:
         sent_message_history[chat_id] = None
 
-    message_history[chat_id] = sticker_info
+    message_history[chat_id] = message_info
 
 
 if __name__ == '__main__':
